@@ -42,7 +42,13 @@ app.get('/data', (req, res) => {
     const directoryPath = path.join(__dirname, 'uploads');
     fs.readdir(directoryPath, (err, files) => {
         if (err) {
+            if (err.code === 'ENOENT') {
+                return res.json({ images: [] });
+            }
             return res.status(500).json({ message: 'Unable to scan directory!', error: err });
+        }
+        if (files.length === 0) {
+            return res.json({ images: [] });
         }
         const images = files.map(file => ({
             imageTitle: path.basename(file, path.extname(file)),
