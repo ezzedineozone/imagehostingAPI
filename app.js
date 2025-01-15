@@ -1,36 +1,40 @@
 const express = require('express');
-const app = express();
-const port = 3000;
 const multer = require('multer');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+
+const app = express();
+
+// Set up multer storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath);
+        }
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${file.fieldname}-${Date.now()}.jpeg`);
+    },
+});
+
+const upload = multer({ storage });
+
 app.use(express.json());
-//sample json body for POST
-/*
-{
-    "imageId": // statically generated,
-    "imageTitle": title_submitted_by_user,
-    "imageURL": subdirectory to be stored at
-    "imageData": actual image data
-}*/
-app.post('/data', (req, res) => {
+
+app.post('/data', upload.single('file'), (req, res) => {
     const receivedData = req.body;
     const file = req.file;
-    if(!file){
+
+    if (!file) {
         return res.status(400).json({ message: 'No file uploaded!' });
     }
-    const imageId = Date.now();
-    const imageTitle = `${receivedData.imageTitle}_${imageId}`;
-    const imageURL = path.join(__dirname, 'uploads', `${imageTitle}.jpeg`);
 
-    fs.writeFile(imageURL, receivedData.imageData, 'base64', (err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error saving image!', error: err });
-        }
-        console.log('Image saved successfully:', imageURL);
-    });
     console.log('Received JSON:', receivedData);
-    res.json({ message: 'Data received!', receivedData });
+    console.log('File uploaded:', file);
+
+    res.json({ message: 'Data received!', receivedData, file });
 });
 app.get('/data', (req, res) => {
     res.json({ message: 'GET request received!' });
@@ -47,6 +51,18 @@ app.get('/data', (req, res) => {
     });
 
 });
+app.delete('/data/:imageTitle', (req, res) => {
+    const imageTitle = req.params.imageTitle;
+    const imageURL = path.join(__dirname, 'uploads', `${imageTitle}.jpeg`);
+    fs.unlink(imageURL, (err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error deleting image!', error: err });
+        }
+        console.log('Image deleted successfully:', imageURL);
+        res.json({ message: 'Image deleted!' });
+    });
+}
+);
 app.listen(port, () => {
     console.log(`API is listening at http://localhost:${port}`);
 });
