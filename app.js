@@ -36,7 +36,6 @@ app.post('/data', upload.single('file'), (req, res) => {
     res.json({ message: 'Data received!', receivedData, file });
 });
 app.get('/data', (req, res) => {
-    res.json({ message: 'GET request received!' });
     const directoryPath = path.join(__dirname, 'uploads');
     fs.readdir(directoryPath, (err, files) => {
         if (err) {
@@ -48,7 +47,6 @@ app.get('/data', (req, res) => {
         }));
         res.json({ images });
     });
-
 });
 app.delete('/data/:imageTitle', (req, res) => {
     const imageTitle = req.params.imageTitle;
