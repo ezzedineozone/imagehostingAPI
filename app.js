@@ -6,7 +6,7 @@ const port = 3000;
 const app = express();
 
 // Set up multer storage
-var date = Date.now(); 
+var fileName = "";
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadPath = path.join(__dirname, 'uploads');
@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-        cb(null, `${file.fieldname}-${date}.jpeg`);
+        cb(null, fileName);
     },
 });
 
@@ -27,13 +27,13 @@ app.use(express.json());
 app.post('/data', upload.single('file'), (req, res) => {
     const receivedData = req.body;
     const file = req.file;
-    date = Date.now();
+    fileName = `${file.fieldname}-${date}.jpeg`;
     if (!file) {
         return res.status(400).json({ message: 'No file uploaded!' , success: false});
     }
     console.log('Received JSON:', receivedData);
     console.log('File uploaded:', file);
-    res.json({ message: 'File uploaded successfully!', success: true , fileName: `${file.fieldname}-${date}.jpeg`});
+    res.json({ message: 'File uploaded successfully!', success: true , fileName: fileName});
 });
 app.get('/data', (req, res) => {
     const directoryPath = path.join(__dirname, 'uploads');
