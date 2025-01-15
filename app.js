@@ -52,7 +52,8 @@ app.get('/data', (req, res) => {
         }
         const images = files.map(file => ({
             imageTitle: path.basename(file, path.extname(file)),
-            imageURL: path.join('uploads', file)
+            imageURL: path.join('uploads', file),
+            fileData: fs.readFileSync(path.join(directoryPath, file)).toString('base64'),
         }));
         res.json({ images });
     });
