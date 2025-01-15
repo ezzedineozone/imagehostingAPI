@@ -3,6 +3,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const port = 3000;
+const cors = require('cors');
 const app = express();
 
 const storage = multer.diskStorage({
@@ -21,7 +22,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
+app.use(cors());
 app.use(express.json());
 
 app.post('/data', upload.single('file'), (req, res) => {
