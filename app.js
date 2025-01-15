@@ -51,6 +51,7 @@ app.get('/data', (req, res) => {
     });
 });
 app.delete('/data', (req, res) => {
+    console.log(req);
     const imageTitle = req.body.imageTitle;
     const directoryPath = path.join(__dirname, 'uploads');
     const filePath = path.join(directoryPath, `${imageTitle}`);
