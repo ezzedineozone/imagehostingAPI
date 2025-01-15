@@ -52,7 +52,28 @@ app.get('/data', (req, res) => {
 });
 app.delete('/data/:imageTitle', (req, res) => {
     const imageTitle = req.params.imageTitle;
-    const imageURL = path.join(__dirname, 'uploads', `${imageTitle}.jpeg`);
+    const directoryPath = path.join(__dirname, 'uploads');
+    const filePath = path.join(directoryPath, `${imageTitle}`);
+
+    fs.readdir(directoryPath, (err, files) => {
+        if (err) {
+            return res.status(500).json({ message: 'Unable to scan directory!', error: err });
+        }
+
+        const fileToDelete = files.find(file => path.basename(file, path.extname(file)) === imageTitle);
+
+        if (!fileToDelete) {
+            return res.status(404).json({ message: 'File not found!', success: false });
+        }
+
+        fs.unlink(path.join(directoryPath, fileToDelete), err => {
+            if (err) {
+                return res.status(500).json({ message: 'Unable to delete file!', error: err });
+            }
+
+            res.json({ message: 'File deleted successfully!', success: true });
+        });
+    });
 }
 );
 app.listen(port, () => {
