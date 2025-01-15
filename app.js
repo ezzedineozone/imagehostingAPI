@@ -59,8 +59,11 @@ app.delete('/data', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'Unable to scan directory!', error: err });
         }
-
-        const fileToDelete = files.find(file => path.basename(file, path.extname(file)) === imageTitle);
+        const fileToDelete = files.find(file =>{
+            let basename = path.basename(file, path.extname(file));
+            console.log("compared " + basename + " with " + imageTitle);
+            return basename === imageTitle;
+        });
 
         if (!fileToDelete) {
             return res.status(404).json({ message: 'File not found!', success: false });
