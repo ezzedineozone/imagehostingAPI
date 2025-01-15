@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-
+const port = 3000;
 const app = express();
 
 // Set up multer storage
@@ -30,7 +30,13 @@ app.post('/data', upload.single('file'), (req, res) => {
     if (!file) {
         return res.status(400).json({ message: 'No file uploaded!' });
     }
-
+    const filePath = path.join(__dirname, 'uploads', file.filename);
+    fs.writeFile(filePath, file.buffer, (err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error saving file!', error: err });
+        }
+        console.log('File saved successfully:', filePath);
+    });
     console.log('Received JSON:', receivedData);
     console.log('File uploaded:', file);
 
