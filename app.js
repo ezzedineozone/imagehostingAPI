@@ -50,7 +50,7 @@ app.get('/data', (req, res) => {
         res.json({ images });
     });
 });
-app.delete('/data/:imageTitle', (req, res) => {
+app.delete('/data', (req, res) => {
     const imageTitle = req.params.imageTitle;
     const directoryPath = path.join(__dirname, 'uploads');
     const filePath = path.join(directoryPath, `${imageTitle}`);
