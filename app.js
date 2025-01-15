@@ -6,6 +6,7 @@ const port = 3000;
 const app = express();
 
 // Set up multer storage
+var date = Date.now(); 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadPath = path.join(__dirname, 'uploads');
@@ -15,7 +16,7 @@ const storage = multer.diskStorage({
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-        cb(null, `${file.fieldname}-${Date.now()}.jpeg`);
+        cb(null, `${file.fieldname}-${date}.jpeg`);
     },
 });
 
@@ -26,14 +27,13 @@ app.use(express.json());
 app.post('/data', upload.single('file'), (req, res) => {
     const receivedData = req.body;
     const file = req.file;
-
+    date = Date.now();
     if (!file) {
-        return res.status(400).json({ message: 'No file uploaded!' });
+        return res.status(400).json({ message: 'No file uploaded!' , success: false});
     }
     console.log('Received JSON:', receivedData);
     console.log('File uploaded:', file);
-
-    res.json({ message: 'Data received!', receivedData, file });
+    res.json({ message: 'File uploaded successfully!', success: true , fileName: `${file.fieldname}-${date}.jpeg`});
 });
 app.get('/data', (req, res) => {
     const directoryPath = path.join(__dirname, 'uploads');
@@ -51,13 +51,6 @@ app.get('/data', (req, res) => {
 app.delete('/data/:imageTitle', (req, res) => {
     const imageTitle = req.params.imageTitle;
     const imageURL = path.join(__dirname, 'uploads', `${imageTitle}.jpeg`);
-    fs.unlink(imageURL, (err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error deleting image!', error: err });
-        }
-        console.log('Image deleted successfully:', imageURL);
-        res.json({ message: 'Image deleted!' });
-    });
 }
 );
 app.listen(port, () => {
